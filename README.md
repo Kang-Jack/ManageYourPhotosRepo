@@ -11,3 +11,6 @@ I like to manage my photo in my laptop, and process them with a desktop, and als
 The tool allow you make a selected photo list file by auto scan your working folder (can detecte the subfolder as well), then can clean up your other place based on the selected photo list file.
 
 ### All selected photo will be kept, the removed photo will be moved to a 'remove' sub folder. you can manully check them later.
+
+## Supports
+Windows and MacOS system are supported
