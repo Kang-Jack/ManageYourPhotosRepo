@@ -13,10 +13,10 @@ The tool allow you make a selected photo list file by auto scan your working fol
 It is a command line app, can work in windows and mac
 use (windows) "foto_list.exe --help" to get cmd help:
 currently support models
-### "by default run without any parameter, switch to create baseline list mode, to create photo list in baseline folder (sub folder include) to your user desktop";
-### "Use parameter --path, switch to clean mode, to clean the target folder based on foto list, should be: --path \"foto list full path\"";
-### "Use parameter --clean, switch to clean mode, to clean the target folder based on foto list, should be: --clean \"foto list full path\"";
-### "Use parameter --compare, switch to compare mode, to generate compare report for both baseline and target folder, should be: --compare \"foto list full path\"";
+1. "by default without any parameter, create baseline list mode, create photo list based on baseline folder (sub folder include) to your user desktop";
+2. "Use parameter --path, switch to clean mode, clean the target folder based on foto list, should be: --path \"foto list full path\"";
+3. "Use parameter --clean, switch to clean mode, clean the target folder based on foto list, should be: --clean \"foto list full path\"";
+4. "Use parameter --compare, switch to compare mode, generate compare report for both baseline and target folder, should be: --compare \"foto list full path\"";
 
 
 ### All selected photo will be kept, the removed photo will be moved to a 'remove' sub folder. you can manully check them later.
