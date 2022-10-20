@@ -26,7 +26,7 @@ namespace foto_list
             return WriteListFile(listFileName, allFiles);     
         }
 
-        public string GenerateDiffReport(string listFileName, string reportFileName)
+        public string GenerateDiffReports(string listFileName)
         {
             var path = InputPhotoFolderPath();
             if (string.IsNullOrEmpty(path))
@@ -35,16 +35,36 @@ namespace foto_list
 
             Console.WriteLine(fullPath);
 
-            StringCollection allPhotos = new StringCollection();
+            StringCollection allPhotosInBaseline = new StringCollection();
 
-            if (!ReadListInFile(listFileName, allPhotos))
+            if (!ReadListInFile(listFileName, allPhotosInBaseline))
                 return ConstDef.ConstErrFotolistFile;
 
-            StringCollection allFiles = new StringCollection();
+            StringCollection allFilesInTarget = new StringCollection();
+            
+            listAllFiles(allFilesInTarget, fullPath, "*.*", true);
 
-            cleanAllFiles(allPhotos, allFiles, fullPath, "*.*", true);
+            StringCollection allMissingFileInTarget = new StringCollection();
 
-            return WriteListFile(reportFileName, allFiles);
+            StringCollection allMissingFileInBaseline = new StringCollection();
+
+            foreach (var name in allPhotosInBaseline)
+            {
+                if (!allFilesInTarget.Contains(name))
+                    allMissingFileInTarget.Add(name);
+            }
+
+
+            foreach (var name in allFilesInTarget)
+            {
+                if (!allPhotosInBaseline.Contains(name))
+                    allMissingFileInBaseline.Add(name);
+            }
+
+            var result = WriteListFile(ConstDef.ConstBaselineDiffFileName, allMissingFileInBaseline);
+            result += "  " + WriteListFile(ConstDef.ConstTargetDiffFileName, allMissingFileInTarget);
+
+            return result;
 
         }
 
@@ -64,11 +84,11 @@ namespace foto_list
             if (!ReadListInFile(listFileName, allPhotos))
                 return ConstDef.ConstErrFotolistFile;
 
-            StringCollection allFiles = new StringCollection();
+            StringCollection removedFiles = new StringCollection();
 
-            cleanAllFiles(allPhotos, allFiles, fullPath, "*.*", true);
+            cleanAllFiles(allPhotos, removedFiles, fullPath, "*.*", true);
 
-            return WriteListFile(reportFileName, allFiles);
+            return WriteListFile(reportFileName, removedFiles);
         }
 
         protected virtual string InputPhotoFolderPath()
@@ -131,7 +151,7 @@ namespace foto_list
             return message;
         }
 
-        private static StringCollection cleanAllFiles(StringCollection allPhotos, StringCollection allFiles, string path, string ext, bool scanDirOk)
+        private static StringCollection cleanAllFiles(StringCollection allPhotos, StringCollection removedFiles, string path, string ext, bool scanDirOk)
         {
             var cleanPath = Path.Combine(path, ConstDef.ConstTempRemoveFolderName);
             string[] listFilesCurrDir = Directory.GetFiles(path, ext);
@@ -147,7 +167,7 @@ namespace foto_list
                 {
                     // Add the file (at least its address) to 'allFiles'
                     fileInfo.MoveTo(cleanPath);
-                    allFiles.Add(rowFile);
+                    removedFiles.Add(rowFile);
                 }
             }
             // Clear the 'listFilesCurrDir' table for the next list of subfolders
@@ -167,7 +187,7 @@ namespace foto_list
                     {
                         if (!rowDir.Contains(ConstDef.ConstTempRemoveFolderName))
                             // Restart the procedure to scan each subfolder
-                            cleanAllFiles(allPhotos, allFiles, rowDir, ext, scanDirOk);
+                            cleanAllFiles(allPhotos, removedFiles, rowDir, ext, scanDirOk);
                     }
                 }
                 // Clear the 'listDirCurrDir' table for the next list of subfolders
@@ -175,7 +195,7 @@ namespace foto_list
 
             }
             // return 'allFiles'
-            return allFiles;
+            return removedFiles;
         }
 
         private static StringCollection listAllFiles(StringCollection allFiles, string path, string ext, bool scanDirOk)

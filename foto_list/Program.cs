@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("mtest")]
@@ -11,19 +12,22 @@ namespace foto_list
 
         internal static IFotoManger Manager
         {
-            get {
+            get
+            {
                 if (_manger == null)
                     return new FotoManager();
                 return _manger;
             }
-            set {
+            set
+            {
                 _manger = value;
             }
         }
 
         internal static void Main(string[] args)
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), ConstDef.ConstlistFileName);
+            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                ConstDef.ConstlistFileName);
             IFotoManger manager = new FotoManager();
             if (args.Length == 0)
             {
@@ -33,46 +37,89 @@ namespace foto_list
             {
                 for (int i = 0; i < args.Length; ++i)
                 {
-                    if (args[i].Trim().ToLower() == ConstDef.ConstParamPath)
+                    if (HandleParameter(args[i]) == ConstDef.ConstParamPath)
                     {
                         if (i >= (args.Length - 1))
                             Console.WriteLine(ConstDef.ConstErrInvalidparameter);
                         else
                         {
                             filePath = args[i + 1].Trim().ToLower();
-                            if (!Directory.Exists(filePath))
-                            {
-                                Console.WriteLine(ConstDef.ConstErrFotoPath);
-                                Console.WriteLine("The input Path is: {0}", filePath);
-                            }
-                            manager.CleanPhoto(filePath, ConstDef.ConstCleanFileName);
+                            if (CheckListFile(filePath))
+                                manager.CleanPhoto(filePath, ConstDef.ConstRemovedFileName);
                         }
+
+                        break;
                     }
-                    else if (args[i].Trim().ToLower() == ConstDef.ConstParamCompare)
+
+                    if (HandleParameter(args[i]) == ConstDef.ConstParamClean)
                     {
                         if (i >= (args.Length - 1))
                             Console.WriteLine(ConstDef.ConstErrInvalidparameter);
                         else
                         {
                             filePath = args[i + 1].Trim().ToLower();
-                            if (!Directory.Exists(filePath))
-                            {
-                                Console.WriteLine(ConstDef.ConstErrFotoPath);
-                                Console.WriteLine("The input Path is: {0}", filePath);
-                            }
-                            manager.CleanPhoto(filePath, ConstDef.ConstCleanFileName);
+                            if (CheckListFile(filePath))
+                                manager.CleanPhoto(filePath, ConstDef.ConstRemovedFileName);
                         }
+
+                        break;
                     }
-                    else
+
+                    if (HandleParameter(args[i]) == ConstDef.ConstParamCompare)
                     {
-                        Console.WriteLine(ConstDef.ConstErrInvalidparameter);
+                        if (i >= (args.Length - 1))
+                            Console.WriteLine(ConstDef.ConstErrInvalidparameter);
+                        else
+                        {
+                            filePath = args[i + 1].Trim().ToLower();
+                            if (CheckListFile(filePath))
+                                manager.GenerateDiffReports(filePath);
+                        }
+
+                        break;
                     }
+
+                    if (HandleParameter(args[i]) == ConstDef.ConstParamHelp)
+                    {
+                        PrintHelp();
+                        break;
+                    }
+                 
+                    PrintHelp();
+                    
                 }
             }
-            Console.ReadLine();
-         }
 
-     
+            Console.ReadLine();
+        }
+        
+        private static bool CheckListFile(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine(ConstDef.ConstErrFotoPath);
+                Console.WriteLine("The input Path is: {0}", filePath);
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void PrintHelp()
+        {
+            Console.WriteLine(ConstDef.ConstHelpList);
+            Console.WriteLine(ConstDef.ConstHelpClean);
+            Console.WriteLine(ConstDef.ConstHelpClean2);
+            Console.WriteLine(ConstDef.ConstHelpCompare);
+        }
+
+        private static string HandleParameter(string para)
+        {
+            if (string.IsNullOrEmpty(para))
+                return para;
+            return para.Replace("-", "").Trim().ToLower();
+        }
+
     }
 }
 
