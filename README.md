@@ -22,5 +22,5 @@ currently support models
 ### All selected photo will be kept, the removed photo will be moved to a 'remove' sub folder. you can manully check them later.
 
 ## Supports and required
-Windows and MacOS system are supported
-.Net core 3.1x runtime needed
+- Windows and MacOS system are supported
+- .Net core 3.1x runtime needed
