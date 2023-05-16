@@ -5,10 +5,8 @@ name: "tagged-release"
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch: # Put here!! for manully trigger button
+    tags:
+      - "v*"
   
 jobs:
   tagged-release:
