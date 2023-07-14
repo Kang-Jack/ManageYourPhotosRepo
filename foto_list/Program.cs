@@ -31,6 +31,7 @@ namespace foto_list
             IFotoManger manager = new FotoManager();
             if (args.Length == 0)
             {
+                PrintHelp();
                 Manager.CreateListFile(filePath);
             }
             else
@@ -107,10 +108,12 @@ namespace foto_list
 
         private static void PrintHelp()
         {
+            Console.WriteLine("===========HELP===========");
             Console.WriteLine(ConstDef.ConstHelpList);
             Console.WriteLine(ConstDef.ConstHelpClean);
             Console.WriteLine(ConstDef.ConstHelpClean2);
             Console.WriteLine(ConstDef.ConstHelpCompare);
+            Console.WriteLine("===========================");
         }
 
         private static string HandleParameter(string para)
