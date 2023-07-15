@@ -60,9 +60,12 @@ namespace foto_list
                 if (!allPhotosInBaseline.Contains(name))
                     allMissingFileInBaseline.Add(name);
             }
+            var baselineDiffFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), ConstDef.ConstBaselineDiffFileName);
 
-            var result = WriteListFile(ConstDef.ConstBaselineDiffFileName, allMissingFileInBaseline);
-            result += "  " + WriteListFile(ConstDef.ConstTargetDiffFileName, allMissingFileInTarget);
+            var targetDiffFileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), ConstDef.ConstTargetDiffFileName);
+
+            var result = WriteListFile(baselineDiffFileName, allMissingFileInBaseline);
+            result += "  " + WriteListFile(targetDiffFileName, allMissingFileInTarget);
 
             return result;
 
@@ -87,8 +90,8 @@ namespace foto_list
             StringCollection removedFiles = new StringCollection();
 
             cleanAllFiles(allPhotos, removedFiles, fullPath, "*.*", true);
-
-            return WriteListFile(reportFileName, removedFiles);
+            var removedFileReport = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), ConstDef.ConstRemovedFileName);
+            return WriteListFile(removedFileReport, removedFiles);
         }
 
         protected virtual string InputPhotoFolderPath()
@@ -155,7 +158,8 @@ namespace foto_list
         {
             var cleanPath = Path.Combine(path, ConstDef.ConstTempRemoveFolderName);
             string[] listFilesCurrDir = Directory.GetFiles(path, ext);
-            Directory.CreateDirectory(cleanPath);
+            if(!Directory.Exists(cleanPath))
+                Directory.CreateDirectory(cleanPath);
 
             // read the array 'listFilesCurrDir'
             foreach (string rowFile in listFilesCurrDir)
@@ -166,7 +170,8 @@ namespace foto_list
                 if (allPhotos.Contains(name) == false)
                 {
                     // Add the file (at least its address) to 'allFiles'
-                    fileInfo.MoveTo(cleanPath);
+                    var newPath = Path.Combine(cleanPath, fileInfo.Name);
+                    fileInfo.MoveTo(newPath);
                     removedFiles.Add(rowFile);
                 }
             }
