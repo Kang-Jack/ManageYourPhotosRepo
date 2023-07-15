@@ -5,3 +5,4 @@
 /mtest/bin/
 /mtest/obj/
 .DS_Store
+*.user
