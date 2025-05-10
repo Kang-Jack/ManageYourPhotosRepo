@@ -47,11 +47,11 @@ jobs:
       with:
         dotnet-version: '6.0.x'
     
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-artifacts
-        path: .
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
     
     - name: Test with coverage
       run: |
