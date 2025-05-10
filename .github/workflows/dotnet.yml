@@ -53,9 +53,6 @@ jobs:
         name: build-artifacts
         path: .
     
-    - name: Create coverage directory
-      run: mkdir -p ./coverage
-    
     - name: Test with coverage
       run: |
         dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
@@ -64,7 +61,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: coverage-reports
-        path: ./coverage/**/*.xml
+        path: ./coverage
         if-no-files-found: error
 
   package:
