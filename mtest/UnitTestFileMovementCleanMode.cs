@@ -44,7 +44,7 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
@@ -71,7 +71,7 @@ public class MTestFileMovementCleanMode
         {
             _testManager.AllPhotos.Add(file);
         }
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourceFiles[0], "report.txt");
@@ -91,7 +91,7 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
@@ -146,7 +146,7 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
@@ -166,7 +166,7 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
@@ -188,7 +188,7 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
@@ -215,7 +215,7 @@ public class MTestFileMovementCleanMode
         {
             _testManager.AllPhotos.Add(file);
         }
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourceFiles[0], "report.txt");
@@ -233,7 +233,7 @@ public class MTestFileMovementCleanMode
         _mockFileSystem.DirectoryExistsResult = true;
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection(); // Empty list
-        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream()); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
