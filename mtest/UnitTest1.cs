@@ -16,8 +16,8 @@ public class MockFileSystem : IFileSystem
     public string GetFileNameWithoutExtensionResult { get; set; } = "test";
     public string GetFileNameResult { get; set; } = "test.txt";
     public string GetExtensionResult { get; set; } = ".txt";
-    public StreamReader OpenTextResult { get; set; }
-    public StreamWriter CreateTextResult { get; set; }
+    public StreamReader? OpenTextResult { get; set; }
+    public StreamWriter? CreateTextResult { get; set; }
 
     public bool DirectoryExists(string path) => DirectoryExistsResult;
     public string GetFullPath(string path) => Path.GetFullPath(path);
@@ -25,8 +25,8 @@ public class MockFileSystem : IFileSystem
     public string[] GetDirectories(string path) => GetDirectoriesResult;
     public void CreateDirectory(string path) { }
     public bool FileExists(string path) => FileExistsResult;
-    public StreamReader OpenText(string path) => OpenTextResult;
-    public StreamWriter CreateText(string path) => CreateTextResult;
+    public StreamReader OpenText(string path) => OpenTextResult ?? throw new InvalidOperationException("OpenTextResult not set");
+    public StreamWriter CreateText(string path) => CreateTextResult ?? throw new InvalidOperationException("CreateTextResult not set");
     public string Combine(params string[] paths) => Path.Combine(paths);
     public string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
     public string GetFileName(string path) => Path.GetFileName(path);
@@ -36,11 +36,8 @@ public class MockFileSystem : IFileSystem
 public class testableFotoManager : FotoManager
 {
     public bool ReadListInFileRes { set; get; }
-
-    public string InputPhotoFolderRes { set; get; }
-
-    public string WriteListFileRes { set; get; }
-
+    public string InputPhotoFolderRes { set; get; } = string.Empty;
+    public string WriteListFileRes { set; get; } = string.Empty;
     public StringCollection AllPhotos { set; get; }
 
     public testableFotoManager(IFileSystem fileSystem) : base(fileSystem)

@@ -8,9 +8,9 @@ namespace mtest;
 
 public class MTestProgram
 {
-    private IFotoManger _originalManager;
-    private testableFotoManager _testManager;
-    private MockFileSystem _mockFileSystem;
+    private IFotoManger? _originalManager;
+    private testableFotoManager? _testManager;
+    private MockFileSystem? _mockFileSystem;
 
     [SetUp]
     public void Setup()
@@ -24,7 +24,10 @@ public class MTestProgram
     [TearDown]
     public void TearDown()
     {
-        Program.Manager = _originalManager;
+        if (_originalManager != null)
+        {
+            Program.Manager = _originalManager;
+        }
         _testManager = null;
         _mockFileSystem = null;
     }
