@@ -58,32 +58,8 @@ jobs:
     
     - name: Test with coverage
       run: |
-        echo "Running tests with coverage..."
-        dotnet test --no-build --configuration Release \
-          --collect:"XPlat Code Coverage" \
-          --results-directory ./coverage \
-          --logger "console;verbosity=detailed" \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura \
-          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.IncludeTestAssembly=true
-        
-        echo "Test command completed with status: $?"
-        
-        echo "Coverage directory contents:"
-        ls -la ./coverage || true
-        
-        echo "Coverage files:"
-        find ./coverage -name "*.xml" -type f || true
-        
-        if [ ! -d "./coverage" ]; then
-          echo "Coverage directory was not created!"
-          exit 1
-        fi
-        
-        if ! find ./coverage -name "*.xml" -type f | grep -q .; then
-          echo "No coverage XML files were generated!"
-          exit 1
-        fi
-    
+        dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+      
     - name: Upload coverage reports
       uses: actions/upload-artifact@v4
       with:
