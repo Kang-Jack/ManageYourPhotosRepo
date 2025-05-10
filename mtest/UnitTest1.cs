@@ -179,7 +179,7 @@ public class testableFotoManager : FotoManager
         return WriteListFileRes;
     }
 
-    public override string CreateListFile(string listFileName)
+    public new string CreateListFile(string listFileName)
     {
         if (string.IsNullOrEmpty(listFileName))
         {
@@ -232,7 +232,7 @@ public class testableFotoManager : FotoManager
         }
     }
 
-    public override string CleanPhoto(string listFileName, string reportFileName)
+    public new string CleanPhoto(string listFileName, string reportFileName)
     {
         if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(reportFileName))
         {
@@ -276,7 +276,7 @@ public class testableFotoManager : FotoManager
         }
     }
 
-    public override string GenerateDiffReports(string listFileName)
+    public new string GenerateDiffReports(string listFileName)
     {
         if (string.IsNullOrEmpty(listFileName))
         {
