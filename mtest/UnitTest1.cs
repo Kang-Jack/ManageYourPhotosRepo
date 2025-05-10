@@ -47,9 +47,12 @@ public class testableFotoManager : FotoManager
 
     protected override bool ReadListInFile(string listFileName, StringCollection allPhotos)
     {
-        foreach (var photo in AllPhotos)
+        if (AllPhotos != null)
         {
-            allPhotos.Add(photo);
+            foreach (var photo in AllPhotos)
+            {
+                allPhotos.Add(photo);
+            }
         }
         return ReadListInFileRes;
     }

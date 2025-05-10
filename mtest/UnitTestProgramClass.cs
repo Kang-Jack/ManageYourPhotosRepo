@@ -36,8 +36,8 @@ public class MTestProgram
     public void TestMain_NoArguments_PrintsHelpAndCreatesListFile()
     {
         // Arrange
-        _mockFileSystem.DirectoryExistsResult = true;
-        _testManager.WriteListFileRes = "List file created successfully";
+        _mockFileSystem!.DirectoryExistsResult = true;
+        _testManager!.WriteListFileRes = "List file created successfully";
 
         // Act
         Program.Main(Array.Empty<string>());
@@ -68,8 +68,8 @@ public class MTestProgram
     {
         // Arrange
         string[] args = new[] { "--path", "testlist.txt" };
-        _mockFileSystem.FileExistsResult = true;
-        _testManager.ReadListInFileRes = true;
+        _mockFileSystem!.FileExistsResult = true;
+        _testManager!.ReadListInFileRes = true;
 
         // Act
         Program.Main(args);
@@ -85,7 +85,7 @@ public class MTestProgram
     {
         // Arrange
         string[] args = new[] { "--path", "nonexistent.txt" };
-        _mockFileSystem.FileExistsResult = false;
+        _mockFileSystem!.FileExistsResult = false;
 
         // Act
         Program.Main(args);
@@ -101,8 +101,8 @@ public class MTestProgram
     {
         // Arrange
         string[] args = new[] { "--clean", "testlist.txt" };
-        _mockFileSystem.FileExistsResult = true;
-        _testManager.ReadListInFileRes = true;
+        _mockFileSystem!.FileExistsResult = true;
+        _testManager!.ReadListInFileRes = true;
 
         // Act
         Program.Main(args);
@@ -118,9 +118,9 @@ public class MTestProgram
     {
         // Arrange
         string[] args = new[] { "--compare", "testlist.txt" };
-        _mockFileSystem.FileExistsResult = true;
-        _testManager.ReadListInFileRes = true;
-        _testManager.WriteListFileRes = "Diff report generated";
+        _mockFileSystem!.FileExistsResult = true;
+        _testManager!.ReadListInFileRes = true;
+        _testManager!.WriteListFileRes = "Diff report generated";
 
         // Act
         Program.Main(args);
