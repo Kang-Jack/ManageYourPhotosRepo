@@ -39,6 +39,7 @@ public class MTestFileSystemErrors
         _mockFileSystem!.FileExistsResult = true;
         _mockFileSystem.DirectoryExistsResult = true;
         _mockFileSystem.ThrowAccessDenied = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
@@ -51,6 +52,7 @@ public class MTestFileSystemErrors
         _mockFileSystem!.FileExistsResult = true;
         _mockFileSystem.DirectoryExistsResult = true;
         _mockFileSystem.ThrowFileInUse = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
 
         // Act & Assert
         Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
@@ -63,6 +65,7 @@ public class MTestFileSystemErrors
         _mockFileSystem!.FileExistsResult = true;
         _mockFileSystem.DirectoryExistsResult = true;
         _mockFileSystem.ThrowAccessDenied = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add("test.jpg");
@@ -78,6 +81,7 @@ public class MTestFileSystemErrors
         _mockFileSystem!.FileExistsResult = true;
         _mockFileSystem.DirectoryExistsResult = true;
         _mockFileSystem.ThrowAccessDenied = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add("test.jpg");
@@ -167,6 +171,7 @@ public class MTestFileSystemErrors
         _mockFileSystem.FileExistsResult = false;
         _mockFileSystem.GetFilesResult = Array.Empty<string>();
         _mockFileSystem.GetDirectoriesResult = Array.Empty<string>();
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
 
         // Act
         string result = _testManager!.CreateListFile(listFileName);
@@ -182,6 +187,7 @@ public class MTestFileSystemErrors
         string listFileName = Path.Combine("test", "folder", "list.txt");
         string reportFileName = Path.Combine("test", "folder", "report.txt");
         _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
 
@@ -198,6 +204,7 @@ public class MTestFileSystemErrors
         // Arrange
         string listFileName = Path.Combine("test", "folder", "list.txt");
         _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _mockFileSystem.GetFilesResult = Array.Empty<string>();
