@@ -53,15 +53,24 @@ jobs:
         name: build-artifacts
         path: .
     
+    - name: Install coverage tool
+      run: |
+        dotnet tool install --global dotnet-coverage
+        dotnet tool list --global
+    
     - name: Test with coverage
       run: |
         dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+        echo "Coverage directory contents:"
+        ls -la ./coverage
+        echo "Coverage files:"
+        find ./coverage -name "*.coverage" -type f
     
     - name: Upload coverage reports
       uses: actions/upload-artifact@v4
       with:
         name: coverage-reports
-        path: ./coverage
+        path: ./coverage/**/*.coverage
         if-no-files-found: error
 
   package:
