@@ -11,7 +11,7 @@ on:
   workflow_dispatch: # Manual trigger button
 
 jobs:
-  build-and-test:
+  build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -26,23 +26,6 @@ jobs:
     
     - name: Build
       run: dotnet build --no-restore --configuration Release
-      id: build
-    
-    - name: Test with coverage
-      run: |
-        dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
-      id: test
-    
-    - name: Check test results
-      if: steps.test.outcome != 'success'
-      run: exit 1
-    
-    - name: Upload coverage reports
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-reports
-        path: ./coverage
-        if-no-files-found: error
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
@@ -51,4 +34,61 @@ jobs:
         path: |
           foto_list/bin/Release/net6.0/
           mtest/bin/Release/net6.0/
+        if-no-files-found: error
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x'
+    
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: .
+    
+    - name: Test with coverage
+      run: |
+        dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+    
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-reports
+        path: ./coverage
+        if-no-files-found: error
+
+  package:
+    needs: [build, test]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-artifacts
+        path: ./artifacts
+    
+    - name: Download coverage reports
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-reports
+        path: ./coverage
+    
+    - name: Create release package
+      run: |
+        mkdir -p ./release
+        cp -r ./artifacts/* ./release/
+        cp -r ./coverage ./release/
+    
+    - name: Upload release package
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-package
+        path: ./release
         if-no-files-found: error
