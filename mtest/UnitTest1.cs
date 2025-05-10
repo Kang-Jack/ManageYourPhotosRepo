@@ -151,10 +151,12 @@ public class testableFotoManager : FotoManager
     public string InputPhotoFolderRes { set; get; } = string.Empty;
     public string WriteListFileRes { set; get; } = string.Empty;
     public StringCollection AllPhotos { set; get; }
+    private readonly IFileSystem _fileSystem;
 
     public testableFotoManager(IFileSystem fileSystem) : base(fileSystem)
     {
         AllPhotos = new StringCollection();
+        _fileSystem = fileSystem;
     }
 
     protected override bool ReadListInFile(string listFileName, StringCollection allPhotos)
