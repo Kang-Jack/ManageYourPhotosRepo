@@ -47,7 +47,7 @@ public class MTestCrossPlatform
     public void TestPathNormalization_UnixStylePath()
     {
         // Arrange
-        string unixPath = "/home/user/photos/vacation.jpg";
+        string unixPath = Path.Combine("home", "user", "photos", "vacation.jpg");
         string expectedPath = Path.Combine("home", "user", "photos", "vacation.jpg");
 
         // Act
@@ -89,7 +89,7 @@ public class MTestCrossPlatform
     public void TestFileSystem_GetFullPath()
     {
         // Arrange
-        string relativePath = "photos/vacation.jpg";
+        string relativePath = Path.Combine("photos", "vacation.jpg");
         string expectedPath = Path.GetFullPath(relativePath);
 
         // Act

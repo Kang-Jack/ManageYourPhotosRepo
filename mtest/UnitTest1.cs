@@ -20,17 +20,17 @@ public class MockFileSystem : IFileSystem
     public StreamWriter CreateTextResult { get; set; }
 
     public bool DirectoryExists(string path) => DirectoryExistsResult;
-    public string GetFullPath(string path) => GetFullPathResult;
+    public string GetFullPath(string path) => Path.GetFullPath(path);
     public string[] GetFiles(string path, string searchPattern) => GetFilesResult;
     public string[] GetDirectories(string path) => GetDirectoriesResult;
     public void CreateDirectory(string path) { }
     public bool FileExists(string path) => FileExistsResult;
     public StreamReader OpenText(string path) => OpenTextResult;
     public StreamWriter CreateText(string path) => CreateTextResult;
-    public string Combine(params string[] paths) => CombineResult;
-    public string GetFileNameWithoutExtension(string path) => GetFileNameWithoutExtensionResult;
-    public string GetFileName(string path) => GetFileNameResult;
-    public string GetExtension(string path) => GetExtensionResult;
+    public string Combine(params string[] paths) => Path.Combine(paths);
+    public string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
+    public string GetFileName(string path) => Path.GetFileName(path);
+    public string GetExtension(string path) => Path.GetExtension(path);
 }
 
 public class testableFotoManager : FotoManager
