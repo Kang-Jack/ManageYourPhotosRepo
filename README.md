@@ -23,4 +23,4 @@ currently support models
 
 ## Supports and required
 - Windows and MacOS system are supported
-- .Net core 3.1x runtime needed
+- .NET 6.0 runtime needed
