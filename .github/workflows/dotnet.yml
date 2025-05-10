@@ -11,9 +11,8 @@ on:
   workflow_dispatch: # Manual trigger button
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     
@@ -27,14 +26,29 @@ jobs:
     
     - name: Build
       run: dotnet build --no-restore --configuration Release
+      id: build
     
     - name: Test with coverage
       run: |
         dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
+      id: test
+    
+    - name: Check test results
+      if: steps.test.outcome != 'success'
+      run: exit 1
     
     - name: Upload coverage reports
       uses: actions/upload-artifact@v4
       with:
         name: coverage-reports
         path: ./coverage
+        if-no-files-found: error
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-artifacts
+        path: |
+          foto_list/bin/Release/net6.0/
+          mtest/bin/Release/net6.0/
         if-no-files-found: error
