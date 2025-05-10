@@ -143,6 +143,14 @@ public class MockFileSystem : IFileSystem
         }
         return Path.GetExtension(path);
     }
+
+    public void MoveFile(string sourcePath, string targetPath)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+    }
 }
 
 public class testableFotoManager : FotoManager
@@ -352,6 +360,48 @@ public class testableFotoManager : FotoManager
             }
 
             return WriteListFile(listFileName, report);
+        }
+        catch (InvalidOperationException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+    }
+
+    public new string MoveFile(string sourcePath, string targetPath)
+    {
+        if (string.IsNullOrEmpty(sourcePath) || string.IsNullOrEmpty(targetPath))
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+
+        try
+        {
+            // Check source file exists
+            if (!_fileSystem.FileExists(sourcePath))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Check target directory exists
+            var targetDir = Path.GetDirectoryName(targetPath) ?? string.Empty;
+            if (!_fileSystem.DirectoryExists(targetDir))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Check if target file already exists
+            if (_fileSystem.FileExists(targetPath))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Move the file
+            _fileSystem.MoveFile(sourcePath, targetPath);
+            return string.Empty;
         }
         catch (InvalidOperationException)
         {
