@@ -83,7 +83,7 @@ public class MTestFileSystemErrors
         _testManager.AllPhotos.Add("test.jpg");
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.GenerateDiffReports("test.jpg", "report.txt"));
+        Assert.Throws<InvalidOperationException>(() => _testManager!.GenerateDiffReports("test.jpg"));
     }
 
     [Test]
