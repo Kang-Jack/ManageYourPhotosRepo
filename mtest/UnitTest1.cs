@@ -29,10 +29,42 @@ public class MockFileSystem : IFileSystem
         }
         return DirectoryExistsResult;
     }
-    public string GetFullPath(string path) => Path.GetFullPath(path);
-    public string[] GetFiles(string path, string searchPattern) => GetFilesResult;
-    public string[] GetDirectories(string path) => GetDirectoriesResult;
-    public void CreateDirectory(string path) { }
+
+    public string GetFullPath(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return Path.GetFullPath(path);
+    }
+
+    public string[] GetFiles(string path, string searchPattern)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return GetFilesResult;
+    }
+
+    public string[] GetDirectories(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return GetDirectoriesResult;
+    }
+
+    public void CreateDirectory(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+    }
+
     public bool FileExists(string path)
     {
         if (ThrowAccessDenied)
@@ -41,6 +73,7 @@ public class MockFileSystem : IFileSystem
         }
         return FileExistsResult;
     }
+
     public StreamReader OpenText(string path)
     {
         if (ThrowAccessDenied)
@@ -57,6 +90,7 @@ public class MockFileSystem : IFileSystem
         }
         return OpenTextResult;
     }
+
     public StreamWriter CreateText(string path)
     {
         if (ThrowAccessDenied)
@@ -73,10 +107,42 @@ public class MockFileSystem : IFileSystem
         }
         return CreateTextResult;
     }
-    public string Combine(params string[] paths) => Path.Combine(paths);
-    public string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
-    public string GetFileName(string path) => Path.GetFileName(path);
-    public string GetExtension(string path) => Path.GetExtension(path);
+
+    public string Combine(params string[] paths)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return Path.Combine(paths);
+    }
+
+    public string GetFileNameWithoutExtension(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return Path.GetFileNameWithoutExtension(path);
+    }
+
+    public string GetFileName(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return Path.GetFileName(path);
+    }
+
+    public string GetExtension(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return Path.GetExtension(path);
+    }
 }
 
 public class testableFotoManager : FotoManager
@@ -102,16 +168,200 @@ public class testableFotoManager : FotoManager
         }
         return ReadListInFileRes;
     }
+
     protected override string InputPhotoFolderPath()
     {
         return InputPhotoFolderRes;
     }
+
     protected override string WriteListFile(string fileName, StringCollection allFiles)
     {
         return WriteListFileRes;
     }
 
+    public override string CreateListFile(string listFileName)
+    {
+        if (string.IsNullOrEmpty(listFileName))
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+
+        try
+        {
+            // Check directory access first
+            var directory = Path.GetDirectoryName(listFileName) ?? string.Empty;
+            if (!_fileSystem.DirectoryExists(directory))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Check file access
+            if (_fileSystem.FileExists(listFileName))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Get input path
+            var inputPath = InputPhotoFolderPath();
+            if (string.IsNullOrEmpty(inputPath))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Get files
+            var allPhotos = new StringCollection();
+            var allFiles = _fileSystem.GetFiles(inputPath, "*.*");
+            foreach (var file in allFiles)
+            {
+                var extension = _fileSystem.GetExtension(file).ToLower();
+                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
+                {
+                    allPhotos.Add(file);
+                }
+            }
+
+            return WriteListFile(listFileName, allPhotos);
+        }
+        catch (InvalidOperationException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+    }
+
+    public override string CleanPhoto(string listFileName, string reportFileName)
+    {
+        if (string.IsNullOrEmpty(listFileName) || string.IsNullOrEmpty(reportFileName))
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+
+        try
+        {
+            // Check file access first
+            if (!_fileSystem.FileExists(listFileName))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Read the list file
+            var allPhotos = new StringCollection();
+            if (!ReadListInFile(listFileName, allPhotos))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Check each photo
+            var report = new StringCollection();
+            foreach (string photo in allPhotos)
+            {
+                if (!_fileSystem.FileExists(photo))
+                {
+                    report.Add($"File not found: {photo}");
+                }
+            }
+
+            return WriteListFile(reportFileName, report);
+        }
+        catch (InvalidOperationException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+    }
+
+    public override string GenerateDiffReports(string listFileName)
+    {
+        if (string.IsNullOrEmpty(listFileName))
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+
+        try
+        {
+            // Check file access first
+            if (!_fileSystem.FileExists(listFileName))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Read the list file
+            var allPhotos = new StringCollection();
+            if (!ReadListInFile(listFileName, allPhotos))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Get input path
+            var inputPath = InputPhotoFolderPath();
+            if (string.IsNullOrEmpty(inputPath))
+            {
+                return ConstDef.ConstErrFotoPath;
+            }
+
+            // Get files and compare
+            var allFiles = _fileSystem.GetFiles(inputPath, "*.*");
+            var report = new StringCollection();
+
+            // Check for missing files in target
+            foreach (string photo in allPhotos)
+            {
+                var found = false;
+                foreach (var file in allFiles)
+                {
+                    if (_fileSystem.GetFileNameWithoutExtension(file) == _fileSystem.GetFileNameWithoutExtension(photo))
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    report.Add($"Missing in target: {photo}");
+                }
+            }
+
+            // Check for missing files in baseline
+            foreach (var file in allFiles)
+            {
+                var extension = _fileSystem.GetExtension(file).ToLower();
+                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
+                {
+                    var found = false;
+                    foreach (string photo in allPhotos)
+                    {
+                        if (_fileSystem.GetFileNameWithoutExtension(file) == _fileSystem.GetFileNameWithoutExtension(photo))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        report.Add($"Missing in baseline: {file}");
+                    }
+                }
+            }
+
+            return WriteListFile(listFileName, report);
+        }
+        catch (InvalidOperationException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return ConstDef.ConstErrFotoPath;
+        }
+    }
 }
+
 public class MTestFotoManger
 {
     private IFotoManger m_sut;
