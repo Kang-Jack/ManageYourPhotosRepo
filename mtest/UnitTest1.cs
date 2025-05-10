@@ -18,15 +18,61 @@ public class MockFileSystem : IFileSystem
     public string GetExtensionResult { get; set; } = ".txt";
     public StreamReader? OpenTextResult { get; set; }
     public StreamWriter? CreateTextResult { get; set; }
+    public bool ThrowAccessDenied { get; set; }
+    public bool ThrowFileInUse { get; set; }
 
-    public bool DirectoryExists(string path) => DirectoryExistsResult;
+    public bool DirectoryExists(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return DirectoryExistsResult;
+    }
     public string GetFullPath(string path) => Path.GetFullPath(path);
     public string[] GetFiles(string path, string searchPattern) => GetFilesResult;
     public string[] GetDirectories(string path) => GetDirectoriesResult;
     public void CreateDirectory(string path) { }
-    public bool FileExists(string path) => FileExistsResult;
-    public StreamReader OpenText(string path) => OpenTextResult ?? throw new InvalidOperationException("OpenTextResult not set");
-    public StreamWriter CreateText(string path) => CreateTextResult ?? throw new InvalidOperationException("CreateTextResult not set");
+    public bool FileExists(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        return FileExistsResult;
+    }
+    public StreamReader OpenText(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        if (ThrowFileInUse)
+        {
+            throw new InvalidOperationException("File in use");
+        }
+        if (OpenTextResult == null)
+        {
+            throw new FileNotFoundException("File not found", path);
+        }
+        return OpenTextResult;
+    }
+    public StreamWriter CreateText(string path)
+    {
+        if (ThrowAccessDenied)
+        {
+            throw new InvalidOperationException("Access denied");
+        }
+        if (ThrowFileInUse)
+        {
+            throw new InvalidOperationException("File in use");
+        }
+        if (CreateTextResult == null)
+        {
+            throw new InvalidOperationException("Cannot create file");
+        }
+        return CreateTextResult;
+    }
     public string Combine(params string[] paths) => Path.Combine(paths);
     public string GetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
     public string GetFileName(string path) => Path.GetFileName(path);

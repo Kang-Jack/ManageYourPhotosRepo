@@ -36,26 +36,54 @@ public class MTestFileSystemErrors
     public void TestCreateListFile_AccessDenied()
     {
         // Arrange
-        string listFileName = Path.Combine("test", "folder", "list.txt");
-        _mockFileSystem!.DirectoryExistsResult = true;
-        _mockFileSystem.FileExistsResult = false;
-        _mockFileSystem.CreateTextResult = null; // Simulate access denied
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.ThrowAccessDenied = true;
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile(listFileName));
+        Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
     }
 
     [Test]
     public void TestCreateListFile_FileInUse()
     {
         // Arrange
-        string listFileName = Path.Combine("test", "folder", "list.txt");
-        _mockFileSystem!.DirectoryExistsResult = true;
-        _mockFileSystem.FileExistsResult = true;
-        _mockFileSystem.OpenTextResult = null; // Simulate file in use
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.ThrowFileInUse = true;
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile(listFileName));
+        Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
+    }
+
+    [Test]
+    public void TestCleanPhoto_AccessDenied()
+    {
+        // Arrange
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.ThrowAccessDenied = true;
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+        _testManager.AllPhotos.Add("test.jpg");
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => _testManager!.CleanPhoto("test.jpg", "report.txt"));
+    }
+
+    [Test]
+    public void TestGenerateDiffReports_AccessDenied()
+    {
+        // Arrange
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.ThrowAccessDenied = true;
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+        _testManager.AllPhotos.Add("test.jpg");
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => _testManager!.GenerateDiffReports("test.jpg", "report.txt"));
     }
 
     [Test]
@@ -71,45 +99,6 @@ public class MTestFileSystemErrors
 
         // Assert
         Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
-    }
-
-    [Test]
-    public void TestCleanPhoto_AccessDenied()
-    {
-        // Arrange
-        string listFileName = Path.Combine("test", "folder", "list.txt");
-        string reportFileName = Path.Combine("test", "folder", "report.txt");
-        _mockFileSystem!.FileExistsResult = true;
-        _mockFileSystem.OpenTextResult = null; // Simulate access denied
-
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.CleanPhoto(listFileName, reportFileName));
-    }
-
-    [Test]
-    public void TestGenerateDiffReports_FileNotFound()
-    {
-        // Arrange
-        string listFileName = Path.Combine("test", "folder", "list.txt");
-        _mockFileSystem!.FileExistsResult = false;
-
-        // Act
-        string result = _testManager!.GenerateDiffReports(listFileName);
-
-        // Assert
-        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
-    }
-
-    [Test]
-    public void TestGenerateDiffReports_AccessDenied()
-    {
-        // Arrange
-        string listFileName = Path.Combine("test", "folder", "list.txt");
-        _mockFileSystem!.FileExistsResult = true;
-        _mockFileSystem.OpenTextResult = null; // Simulate access denied
-
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.GenerateDiffReports(listFileName));
     }
 
     [Test]
@@ -136,6 +125,20 @@ public class MTestFileSystemErrors
 
         // Act
         string result = _testManager!.CleanPhoto(listFileName, reportFileName);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
+    }
+
+    [Test]
+    public void TestGenerateDiffReports_FileNotFound()
+    {
+        // Arrange
+        string listFileName = Path.Combine("test", "folder", "list.txt");
+        _mockFileSystem!.FileExistsResult = false;
+
+        // Act
+        string result = _testManager!.GenerateDiffReports(listFileName);
 
         // Assert
         Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
