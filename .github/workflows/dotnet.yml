@@ -33,7 +33,7 @@ jobs:
         dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
     
     - name: Upload coverage reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-reports
         path: ./coverage
