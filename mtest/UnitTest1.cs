@@ -198,41 +198,30 @@ public class testableFotoManager : FotoManager
 
         try
         {
-            // Check directory access first
-            var directory = Path.GetDirectoryName(listFileName) ?? string.Empty;
-            if (!_fileSystem.DirectoryExists(directory))
+            if (!_fileSystem.DirectoryExists(Path.GetDirectoryName(listFileName) ?? string.Empty))
             {
                 return ConstDef.ConstErrFotoPath;
             }
 
-            // Check file access
             if (_fileSystem.FileExists(listFileName))
             {
-                return ConstDef.ConstErrFotoPath;
+                using var reader = _fileSystem.OpenText(listFileName);
+                // File exists and is readable
+            }
+            else
+            {
+                using var writer = _fileSystem.CreateText(listFileName);
+                // File doesn't exist and can be created
             }
 
-            // Get input path
-            var inputPath = InputPhotoFolderPath();
-            if (string.IsNullOrEmpty(inputPath))
+            var result = WriteListFile(listFileName, AllPhotos);
+            if (string.IsNullOrEmpty(result))
             {
                 return ConstDef.ConstErrFotoPath;
             }
-
-            // Get files
-            var allPhotos = new StringCollection();
-            var allFiles = _fileSystem.GetFiles(inputPath, "*.*");
-            foreach (var file in allFiles)
-            {
-                var extension = _fileSystem.GetExtension(file).ToLower();
-                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
-                {
-                    allPhotos.Add(file);
-                }
-            }
-
-            return WriteListFile(listFileName, allPhotos);
+            return result;
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException ex) when (ex.Message == "File in use" || ex.Message == "Access denied")
         {
             throw;
         }

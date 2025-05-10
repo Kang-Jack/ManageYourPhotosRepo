@@ -53,9 +53,13 @@ public class MTestFileSystemErrors
         _mockFileSystem.DirectoryExistsResult = true;
         _mockFileSystem.ThrowFileInUse = true;
         _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+        _testManager.WriteListFileRes = "test"; // Set a non-null result to avoid null reference
 
         // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
+        var ex = Assert.Throws<InvalidOperationException>(() => _testManager!.CreateListFile("testlist.txt"));
+        Assert.That(ex.Message, Is.EqualTo("File in use"));
     }
 
     [Test]
