@@ -5,6 +5,34 @@ using NUnit.Framework;
 using System;
 namespace mtest;
 
+public class MockFileSystem : IFileSystem
+{
+    public bool DirectoryExistsResult { get; set; } = true;
+    public bool FileExistsResult { get; set; } = true;
+    public string[] GetFilesResult { get; set; } = Array.Empty<string>();
+    public string[] GetDirectoriesResult { get; set; } = Array.Empty<string>();
+    public string GetFullPathResult { get; set; } = "C:\\TestPath";
+    public string CombineResult { get; set; } = "C:\\TestPath\\file.txt";
+    public string GetFileNameWithoutExtensionResult { get; set; } = "test";
+    public string GetFileNameResult { get; set; } = "test.txt";
+    public string GetExtensionResult { get; set; } = ".txt";
+    public StreamReader OpenTextResult { get; set; }
+    public StreamWriter CreateTextResult { get; set; }
+
+    public bool DirectoryExists(string path) => DirectoryExistsResult;
+    public string GetFullPath(string path) => GetFullPathResult;
+    public string[] GetFiles(string path, string searchPattern) => GetFilesResult;
+    public string[] GetDirectories(string path) => GetDirectoriesResult;
+    public void CreateDirectory(string path) { }
+    public bool FileExists(string path) => FileExistsResult;
+    public StreamReader OpenText(string path) => OpenTextResult;
+    public StreamWriter CreateText(string path) => CreateTextResult;
+    public string Combine(params string[] paths) => CombineResult;
+    public string GetFileNameWithoutExtension(string path) => GetFileNameWithoutExtensionResult;
+    public string GetFileName(string path) => GetFileNameResult;
+    public string GetExtension(string path) => GetExtensionResult;
+}
+
 public class testableFotoManager : FotoManager
 {
     public bool ReadListInFileRes { set; get; }
@@ -15,9 +43,17 @@ public class testableFotoManager : FotoManager
 
     public StringCollection AllPhotos { set; get; }
 
+    public testableFotoManager(IFileSystem fileSystem) : base(fileSystem)
+    {
+        AllPhotos = new StringCollection();
+    }
+
     protected override bool ReadListInFile(string listFileName, StringCollection allPhotos)
     {
-        allPhotos = AllPhotos;
+        foreach (var photo in AllPhotos)
+        {
+            allPhotos.Add(photo);
+        }
         return ReadListInFileRes;
     }
     protected override string InputPhotoFolderPath()
@@ -32,13 +68,15 @@ public class testableFotoManager : FotoManager
 }
 public class MTestFotoManger
 {
-    IFotoManger m_sut;
+    private IFotoManger m_sut;
+    private MockFileSystem mockFileSystem;
     private string tempDirPath;
 
     [SetUp]
     public void Setup()
     {
-        m_sut = new testableFotoManager();
+        mockFileSystem = new MockFileSystem();
+        m_sut = new testableFotoManager(mockFileSystem);
         // Setup: Create a temporary directory for testing
         tempDirPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(tempDirPath);
@@ -48,6 +86,7 @@ public class MTestFotoManger
     public void TearDown()
     {
         m_sut = null;
+        mockFileSystem = null;
         // Cleanup: Delete the temporary directory after each test
         if (Directory.Exists(tempDirPath))
             Directory.Delete(tempDirPath, true);
@@ -57,6 +96,7 @@ public class MTestFotoManger
     [Test]
     public void TestCreateListFileValidPathAndFileName()
     {
+        mockFileSystem.DirectoryExistsResult = true;
         string listFileName = "testlist.txt";
         string result = m_sut.CreateListFile(listFileName);
         Assert.IsNotNull(result);
@@ -67,6 +107,7 @@ public class MTestFotoManger
     [Test]
     public void TestCreateListFileInvalidFilePath()
     {
+        mockFileSystem.DirectoryExistsResult = false;
         var re = m_sut.CreateListFile("errorPath");
         Assert.AreEqual(re, ConstDef.ConstErrFotoPath);
     }
@@ -90,12 +131,11 @@ public class MTestFotoManger
     [Test]
     public void TestCreateListFileExistingFileName()
     {
+        mockFileSystem.FileExistsResult = true;
         string existingFileName = "existingfile.txt";
-        File.Create(existingFileName).Close(); // Create the file
-        string listFileName = existingFileName;
-        string result = m_sut.CreateListFile(listFileName);
+        string result = m_sut.CreateListFile(existingFileName);
         Assert.IsNotNull(result); // Should not overwrite the file
-        File.Delete(listFileName); // Clean up after test
+        File.Delete(existingFileName); // Clean up after test
     }
 
 
@@ -105,6 +145,8 @@ public class MTestFotoManger
     /// </summary>
     public void TestCleanPhotoValidPathAndFileName()
     {
+        mockFileSystem.DirectoryExistsResult = true;
+        mockFileSystem.FileExistsResult = true;
         string listFileName = "testlist.txt";
         string reportFileName = "report.txt";
         m_sut.CreateListFile(listFileName);
@@ -119,6 +161,7 @@ public class MTestFotoManger
     /// </summary>
     public void TestCleanPhotoInvalidPath()
     {
+        mockFileSystem.DirectoryExistsResult = false;
         string listFileName = "testlist.txt";
         string reportFileName = "report.txt";
         m_sut.CreateListFile(listFileName);
@@ -145,20 +188,14 @@ public class MTestFotoManger
     /// </summary>
     public void GenerateDiffReports_BothListsEmpty_ReturnsNoDiff()
     {
-
-        var path = Path.Combine(tempDirPath, "target");
-     
-        Directory.CreateDirectory(path);
-        var listFileName = "emptylist.txt";
-        var filePath = Path.Combine(tempDirPath, listFileName);
-        File.WriteAllText(filePath, string.Empty);
-        StringCollection allPhotosInBaseline = new();
         var _sut = (testableFotoManager)m_sut;
-        _sut.InputPhotoFolderRes = path;
+        _sut.InputPhotoFolderRes = "testPath";
         _sut.ReadListInFileRes = true;
-        _sut.AllPhotos = allPhotosInBaseline;
+        _sut.AllPhotos = new StringCollection();
         _sut.WriteListFileRes = "No differences found.";
-        Assert.That(_sut.GenerateDiffReports(filePath).Contains("No differences found."));
+        mockFileSystem.GetFilesResult = Array.Empty<string>();
+        
+        Assert.That(_sut.GenerateDiffReports("test.txt").Contains("No differences found."));
     }
 
     [Test]
@@ -167,20 +204,15 @@ public class MTestFotoManger
     /// </summary>
     public void GenerateDiffReports_OnlyTargetHasFiles_ReturnsMissingInBaseline()
     {
-        var path = Path.Combine(tempDirPath, "target");
-        Directory.CreateDirectory(path);
-        var listFileName = "target.txt";
-        var filePath = Path.Combine(tempDirPath, listFileName);
-        File.WriteAllText(filePath, "file1.jpg\nfile2.jpg");
-        File.WriteAllText(Path.Combine(path, "file3.jpg"), string.Empty);
-
-        StringCollection allPhotosInBaseline = new StringCollection { "file1.jpg", "file2.jpg" };
-       var _sut = (testableFotoManager)m_sut;
-        _sut.InputPhotoFolderRes = path;
+        var _sut = (testableFotoManager)m_sut;
+        _sut.InputPhotoFolderRes = "testPath";
         _sut.ReadListInFileRes = true;
-        _sut.AllPhotos = allPhotosInBaseline;
+        _sut.AllPhotos = new StringCollection { "file1.jpg", "file2.jpg" };
         _sut.WriteListFileRes = "Missing in baseline: file3.jpg";
-        Assert.That(_sut.GenerateDiffReports(listFileName).Contains("Missing in baseline: file3.jpg"));
+        mockFileSystem.GetFilesResult = new[] { "file3.jpg" };
+        mockFileSystem.GetFileNameWithoutExtensionResult = "file3";
+        
+        Assert.That(_sut.GenerateDiffReports("test.txt").Contains("Missing in baseline: file3.jpg"));
     }
 
     [Test]
@@ -189,21 +221,14 @@ public class MTestFotoManger
     /// </summary>
     public void GenerateDiffReports_OnlyBaselineHasFiles_ReturnsMissingInTarget()
     {
-        var path = Path.Combine(tempDirPath, "target");
-        Directory.CreateDirectory(path);
-        var listFileName = "baseline.txt";
-        var filePath = Path.Combine(tempDirPath, listFileName);
-        File.WriteAllText(filePath, "file1.jpg\nfile2.jpg");
-  
-        StringCollection allPhotosInBaseline = new StringCollection { "file1.jpg", "file2.jpg" };
         var _sut = (testableFotoManager)m_sut;
-        _sut.InputPhotoFolderRes = path;
+        _sut.InputPhotoFolderRes = "testPath";
         _sut.ReadListInFileRes = true;
-        _sut.AllPhotos = allPhotosInBaseline;
+        _sut.AllPhotos = new StringCollection { "file1.jpg", "file2.jpg" };
         _sut.WriteListFileRes = "Missing in baseline: file1.jpg,file2.jpg";
-
-
-        Assert.That(_sut.GenerateDiffReports(listFileName).Contains("Missing in baseline: file1.jpg,file2.jpg"));
+        mockFileSystem.GetFilesResult = Array.Empty<string>();
+        
+        Assert.That(_sut.GenerateDiffReports("test.txt").Contains("Missing in baseline: file1.jpg,file2.jpg"));
     }
 
     [Test]
@@ -212,25 +237,15 @@ public class MTestFotoManger
     /// </summary>
     public void GenerateDiffReports_BothListsHaveFiles_ReturnsCorrectDifferences()
     {
-        var path = Path.Combine(tempDirPath, "target");
-        Directory.CreateDirectory(path);
-        var listFileName = "baselineAndTarget.txt";
-        var filePath = Path.Combine(tempDirPath, listFileName);
-        File.WriteAllText(filePath, "file1.jpg\nfile2.jpg");
-
-       
-        File.WriteAllText(Path.Combine(tempDirPath, "target", "file2.jpg"), string.Empty); // Different name but same content as baseline
-        File.WriteAllText(Path.Combine(tempDirPath, "target", "file3.jpg"), string.Empty); // Completely new file in target
-        StringCollection allPhotosInBaseline = new StringCollection { "file1.jpg", "file2.jpg" };
-
         var _sut = (testableFotoManager)m_sut;
-        _sut.InputPhotoFolderRes = path;
+        _sut.InputPhotoFolderRes = "testPath";
         _sut.ReadListInFileRes = true;
-        _sut.AllPhotos = allPhotosInBaseline;
+        _sut.AllPhotos = new StringCollection { "file1.jpg", "file2.jpg" };
         _sut.WriteListFileRes = "Missing in baseline: file3.jpg, Missing in target: file1.jpg";
-
-
-        Assert.That(m_sut.GenerateDiffReports(listFileName).Contains("Missing in baseline: file3.jpg, Missing in target: file1.jpg"));
+        mockFileSystem.GetFilesResult = new[] { "file2.jpg", "file3.jpg" };
+        mockFileSystem.GetFileNameWithoutExtensionResult = "file3";
+        
+        Assert.That(_sut.GenerateDiffReports("test.txt").Contains("Missing in baseline: file3.jpg, Missing in target: file1.jpg"));
     }
 
     [Test]
@@ -239,23 +254,15 @@ public class MTestFotoManger
     /// </summary>
     public void GenerateDiffReports_ListsHaveNoDifferences_ReturnsNoDiff2()
     {
-        var path = Path.Combine(tempDirPath, "target");
-        Directory.CreateDirectory(path);
-        var listFileName = "sameFiles.txt";
-        var filePath = Path.Combine(tempDirPath, listFileName);
-     
-        File.WriteAllText(listFileName, "file1.jpg\nfile2.jpg");
-        File.WriteAllText(Path.Combine(path, "file1.jpg"), string.Empty);
-        File.WriteAllText(Path.Combine(path, "file2.jpg"), string.Empty);
-        StringCollection allPhotosInBaseline = new StringCollection { "file1.jpg", "file2.jpg" };
-
         var _sut = (testableFotoManager)m_sut;
-        _sut.InputPhotoFolderRes = path;
+        _sut.InputPhotoFolderRes = "testPath";
         _sut.ReadListInFileRes = true;
-        _sut.AllPhotos = allPhotosInBaseline;
+        _sut.AllPhotos = new StringCollection { "file1.jpg", "file2.jpg" };
         _sut.WriteListFileRes = "No differences found.";
-
-        Assert.That(m_sut.GenerateDiffReports(listFileName).Contains("No differences found."));
+        mockFileSystem.GetFilesResult = new[] { "file1.jpg", "file2.jpg" };
+        mockFileSystem.GetFileNameWithoutExtensionResult = "file1";
+        
+        Assert.That(_sut.GenerateDiffReports("test.txt").Contains("No differences found."));
     }
 
     [Test]
@@ -273,6 +280,7 @@ public class MTestFotoManger
     [Test]
     public void TestCreateListFile()
     {
+        mockFileSystem.DirectoryExistsResult = true;
         string listFileName = "testlist.txt";
         string result = m_sut.CreateListFile(listFileName);
         Assert.IsNotNull(result);
@@ -282,19 +290,23 @@ public class MTestFotoManger
     [Test]
     public void TestGenerateDiffReports()
     {
-        string listFileName = "testlist.txt";
-        string reportFileName = "report.txt";
-        m_sut.CreateListFile(listFileName);
-        string result = m_sut.GenerateDiffReports(listFileName);
+        var _sut = (testableFotoManager)m_sut;
+        _sut.InputPhotoFolderRes = "testPath";
+        _sut.ReadListInFileRes = true;
+        _sut.AllPhotos = new StringCollection();
+        _sut.WriteListFileRes = "Test result";
+        string result = m_sut.GenerateDiffReports("test.txt");
         Assert.IsNotNull(result);
-        File.Delete(reportFileName); // Clean up after test
     }
     [Test]
     public void TestCleanPhoto()
     {
+        mockFileSystem.DirectoryExistsResult = true;
+        mockFileSystem.FileExistsResult = true;
+        var _sut = (testableFotoManager)m_sut;
+        _sut.ReadListInFileRes = true;
         string listFileName = "testlist.txt";
         string reportFileName = "report.txt";
-        m_sut.CreateListFile(listFileName);
         string result = m_sut.CleanPhoto(listFileName, reportFileName);
         Assert.IsNotNull(result);
         File.Delete(reportFileName); // Clean up after test

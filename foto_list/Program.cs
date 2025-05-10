@@ -15,7 +15,7 @@ namespace foto_list
             get
             {
                 if (_manger == null)
-                    return new FotoManager();
+                    return new FotoManager(new FileSystem());
                 return _manger;
             }
             set
@@ -26,9 +26,11 @@ namespace foto_list
 
         internal static void Main(string[] args)
         {
-            string filePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            string filePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
                 ConstDef.ConstlistFileName);
-            IFotoManger manager = new FotoManager();
+                
+            IFotoManger manager = new FotoManager(new FileSystem());
             if (args.Length == 0)
             {
                 PrintHelp();
@@ -44,7 +46,7 @@ namespace foto_list
                             Console.WriteLine(ConstDef.ConstErrInvalidparameter);
                         else
                         {
-                            filePath = args[i + 1].Trim().ToLower();
+                            filePath = NormalizePath(args[i + 1].Trim().ToLower());
                             if (CheckListFile(filePath))
                                 manager.CleanPhoto(filePath, ConstDef.ConstRemovedFileName);
                         }
@@ -58,7 +60,7 @@ namespace foto_list
                             Console.WriteLine(ConstDef.ConstErrInvalidparameter);
                         else
                         {
-                            filePath = args[i + 1].Trim().ToLower();
+                            filePath = NormalizePath(args[i + 1].Trim().ToLower());
                             if (CheckListFile(filePath))
                                 manager.CleanPhoto(filePath, ConstDef.ConstRemovedFileName);
                         }
@@ -72,7 +74,7 @@ namespace foto_list
                             Console.WriteLine(ConstDef.ConstErrInvalidparameter);
                         else
                         {
-                            filePath = args[i + 1].Trim().ToLower();
+                            filePath = NormalizePath(args[i + 1].Trim().ToLower());
                             if (CheckListFile(filePath))
                                 manager.GenerateDiffReports(filePath);
                         }
@@ -87,11 +89,16 @@ namespace foto_list
                     }
                  
                     PrintHelp();
-                    
                 }
             }
 
             Console.ReadLine();
+        }
+        
+        private static string NormalizePath(string path)
+        {
+            return path.Replace('\\', Path.DirectorySeparatorChar)
+                      .Replace('/', Path.DirectorySeparatorChar);
         }
         
         private static bool CheckListFile(string filePath)
@@ -122,7 +129,6 @@ namespace foto_list
                 return para;
             return para.Replace("-", "").Trim().ToLower();
         }
-
     }
 }
 
