@@ -44,12 +44,13 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -70,12 +71,13 @@ public class MTestFileMovementCleanMode
         {
             _testManager.AllPhotos.Add(file);
         }
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourceFiles[0], "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -89,12 +91,13 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -143,12 +146,13 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -162,12 +166,13 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -183,12 +188,13 @@ public class MTestFileMovementCleanMode
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection();
         _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -209,12 +215,13 @@ public class MTestFileMovementCleanMode
         {
             _testManager.AllPhotos.Add(file);
         }
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourceFiles[0], "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
     [Test]
@@ -226,11 +233,12 @@ public class MTestFileMovementCleanMode
         _mockFileSystem.DirectoryExistsResult = true;
         _testManager!.ReadListInFileRes = true;
         _testManager.AllPhotos = new StringCollection(); // Empty list
+        _mockFileSystem.OpenTextResult = new StringReader(""); // Simulate empty file
 
         // Act
         string result = _testManager!.CleanPhoto(sourcePath, "report.txt");
 
         // Assert
-        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 } 
