@@ -59,7 +59,13 @@ jobs:
     - name: Test with coverage
       run: |
         echo "Running tests with coverage..."
-        dotnet test --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage --logger "console;verbosity=detailed"
+        dotnet test --no-build --configuration Release \
+          --collect:"XPlat Code Coverage" \
+          --results-directory ./coverage \
+          --logger "console;verbosity=detailed" \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=cobertura \
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.IncludeTestAssembly=true
+        
         echo "Test command completed with status: $?"
         
         echo "Coverage directory contents:"
