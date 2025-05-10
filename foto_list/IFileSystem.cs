@@ -17,5 +17,6 @@ namespace foto_list
         string GetFileNameWithoutExtension(string path);
         string GetFileName(string path);
         string GetExtension(string path);
+        void MoveFile(string sourcePath, string targetPath);
     }
 } 

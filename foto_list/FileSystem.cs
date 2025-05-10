@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using System.Collections.Specialized;
 
 namespace foto_list
 {
@@ -35,5 +36,10 @@ namespace foto_list
         public string GetFileName(string path) => Path.GetFileName(path);
         
         public string GetExtension(string path) => Path.GetExtension(path);
+
+        public void MoveFile(string sourcePath, string targetPath)
+        {
+            File.Move(sourcePath, targetPath);
+        }
     }
 } 
