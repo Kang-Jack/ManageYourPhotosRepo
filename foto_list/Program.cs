@@ -95,12 +95,6 @@ namespace foto_list
             Console.ReadLine();
         }
         
-        private static string NormalizePath(string path)
-        {
-            return path.Replace('\\', Path.DirectorySeparatorChar)
-                      .Replace('/', Path.DirectorySeparatorChar);
-        }
-        
         private static bool CheckListFile(string filePath)
         {
             if (!File.Exists(filePath))
@@ -121,6 +115,12 @@ namespace foto_list
             Console.WriteLine(ConstDef.ConstHelpClean2);
             Console.WriteLine(ConstDef.ConstHelpCompare);
             Console.WriteLine("===========================");
+        }
+
+        internal static string NormalizePath(string path)
+        {
+            return path.Replace('\\', Path.DirectorySeparatorChar)
+                      .Replace('/', Path.DirectorySeparatorChar);
         }
 
         private static string HandleParameter(string para)
