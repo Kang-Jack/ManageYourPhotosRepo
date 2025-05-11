@@ -216,4 +216,93 @@ public class MTestFileMovementCleanMode
         // Assert
         Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
-} 
+
+    [Test]
+    public void TestCleanPhoto_InvalidSourcePath()
+    {
+        // Arrange
+        string sourcePath = "invalid*path/photo.jpg";
+        string reportPath = "reports/report.txt";
+        _mockFileSystem!.FileExistsResult = false;
+
+        // Act
+        string result = _testManager!.CleanPhoto(sourcePath, reportPath);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
+    }
+
+    [Test]
+    public void TestCleanPhoto_InvalidTargetPath()
+    {
+        // Arrange
+        string sourcePath = "photos/photo.jpg";
+        string reportPath = "invalid*path/report.txt";
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = false;
+
+        // Act
+        string result = _testManager!.CleanPhoto(sourcePath, reportPath);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
+    }
+
+    [Test]
+    public void TestCleanPhoto_FileCollision()
+    {
+        // Arrange
+        string sourcePath = "photos/photo.jpg";
+        string reportPath = "reports/report.txt";
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+        _testManager.AllPhotos.Add(sourcePath);
+        _mockFileSystem.ThrowFileInUse = true;
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => _testManager.CleanPhoto(sourcePath, reportPath));
+    }
+
+    [Test]
+    public void TestCleanPhoto_SuccessfulCleanup()
+    {
+        // Arrange
+        string sourcePath = "photos/photo.jpg";
+        string reportPath = "reports/report.txt";
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+        _testManager.AllPhotos.Add(sourcePath);
+
+        // Act
+        string result = _testManager.CleanPhoto(sourcePath, reportPath);
+
+        // Assert
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result, Is.Not.EqualTo(ConstDef.ConstErrFotoPath));
+    }
+
+    [Test]
+    public void TestMoveFileWithEmptyList2()
+    {
+        // Arrange
+        string sourcePath = "source/photo1.jpg";
+        string targetPath = "target/photo1.jpg";
+        _mockFileSystem!.FileExistsResult = true;
+        _mockFileSystem.DirectoryExistsResult = true;
+        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
+        _testManager!.ReadListInFileRes = true;
+        _testManager.AllPhotos = new StringCollection();
+
+        // Act
+        string result = _testManager.MoveFile(sourcePath, targetPath);
+
+        // Assert
+        Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
+    }
+}
