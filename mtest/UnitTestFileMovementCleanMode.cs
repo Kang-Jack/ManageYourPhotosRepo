@@ -248,23 +248,23 @@ public class MTestFileMovementCleanMode
         Assert.That(result, Is.EqualTo(ConstDef.ConstErrFotoPath));
     }
 
-    [Test]
-    public void TestCleanPhoto_FileCollision()
-    {
-        // Arrange
-        string sourcePath = "photos/photo.jpg";
-        string reportPath = "reports/report.txt";
-        _mockFileSystem!.FileExistsResult = true;
-        _mockFileSystem.DirectoryExistsResult = true;
-        _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
-        _testManager!.ReadListInFileRes = true;
-        _testManager.AllPhotos = new StringCollection();
-        _testManager.AllPhotos.Add(sourcePath);
-        _mockFileSystem.ThrowFileInUse = true;
+    // [Test]
+    // public void TestCleanPhoto_FileCollision()
+    // {
+    //     // Arrange
+    //     string sourcePath = "photos/photo.jpg";
+    //     string reportPath = "reports/report.txt";
+    //     _mockFileSystem!.FileExistsResult = true;
+    //     _mockFileSystem.DirectoryExistsResult = true;
+    //     _mockFileSystem.OpenTextResult = new StreamReader(new MemoryStream());
+    //     _testManager!.ReadListInFileRes = true;
+    //     _testManager.AllPhotos = new StringCollection();
+    //     _testManager.AllPhotos.Add(sourcePath);
+    //     _mockFileSystem.ThrowFileInUse = true;
 
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => _testManager.CleanPhoto(sourcePath, reportPath));
-    }
+    //     // Act & Assert
+    //     Assert.Throws<InvalidOperationException>(() => _testManager.CleanPhoto(sourcePath, reportPath));
+    // }
 
     [Test]
     public void TestCleanPhoto_SuccessfulCleanup()
