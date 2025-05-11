@@ -219,4 +219,13 @@ public class MTestFileSystemErrors
         // Assert
         Assert.That(result, Is.Not.Null);
     }
-} 
+
+    // Suggested test addition:
+    [Test]
+    public void MoveFile_InvalidSource_ThrowsException()
+    {
+        var fs = new FileSystem();
+        Assert.Throws<FileNotFoundException>(() => 
+            fs.MoveFile("nonexistent.txt", "target.txt"));
+    }
+}
