@@ -280,7 +280,7 @@ public class MTestFileSystemErrors
     {
         // Arrange
         var fs = new FileSystem();
-        string path = "C:\\test\folder\file.txt";
+        string path = "C:\\test\\folder\\file.txt";
 
         // Act
         string result = fs.GetFileName(path);
@@ -294,7 +294,7 @@ public class MTestFileSystemErrors
     {
         // Arrange
         var fs = new FileSystem();
-        string path = "C:\\test\folder\file.txt";
+        string path = "C:\\test\\folder\\file.txt";
 
         // Act
         string result = fs.GetExtension(path);
