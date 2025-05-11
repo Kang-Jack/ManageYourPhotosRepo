@@ -111,7 +111,6 @@ namespace foto_list
         {
             Console.WriteLine("===========HELP===========");
             Console.WriteLine(ConstDef.ConstHelpList);
-            Console.WriteLine(ConstDef.ConstHelpClean);
             Console.WriteLine(ConstDef.ConstHelpClean2);
             Console.WriteLine(ConstDef.ConstHelpCompare);
             Console.WriteLine("===========================");
