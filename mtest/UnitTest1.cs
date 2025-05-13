@@ -20,6 +20,8 @@ public class MockFileSystem : IFileSystem
     public StreamWriter? CreateTextResult { get; set; }
     public bool ThrowAccessDenied { get; set; }
     public bool ThrowFileInUse { get; set; }
+    public bool OpenTextThrowException { get; set; }
+    public bool CreateTextThrowException { get; set; }
 
     public bool DirectoryExists(string path)
     {
@@ -76,6 +78,10 @@ public class MockFileSystem : IFileSystem
 
     public StreamReader OpenText(string path)
     {
+        if (OpenTextThrowException)
+        {
+            throw new IOException("Error reading file");
+        }
         if (ThrowAccessDenied)
         {
             throw new InvalidOperationException("Access denied");
@@ -93,6 +99,10 @@ public class MockFileSystem : IFileSystem
 
     public StreamWriter CreateText(string path)
     {
+        if (CreateTextThrowException)
+        {
+            throw new IOException("Error creating file");
+        }
         if (ThrowAccessDenied)
         {
             throw new InvalidOperationException("Access denied");
