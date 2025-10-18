@@ -25,7 +25,7 @@ namespace foto_list
             StringCollection allFiles = new StringCollection();
             listAllFiles(allFiles, fullPath, "*.*", true);
 
-            return WriteListFile(listFileName, allFiles);     
+            return WriteListFile(listFileName, allFiles);
         }
 
         public string GenerateDiffReports(string listFileName)
@@ -43,7 +43,7 @@ namespace foto_list
                 return ConstDef.ConstErrFotolistFile;
 
             StringCollection allFilesInTarget = new StringCollection();
-            
+
             listAllFiles(allFilesInTarget, fullPath, "*.*", true);
 
             StringCollection allMissingFileInTarget = new StringCollection();
@@ -124,15 +124,15 @@ namespace foto_list
             {
                 re = false;
             }
-                
+
             return re;
         }
 
         protected virtual string WriteListFile(string fileName, StringCollection allFiles)
         {
             string message;
-            try 
-            { 
+            try
+            {
                 using (var outputFile = _fileSystem.CreateText(fileName))
                 {
                     foreach (var name in allFiles)
@@ -151,27 +151,32 @@ namespace foto_list
             return message;
         }
 
-        private StringCollection cleanAllFiles(StringCollection allPhotos, StringCollection removedFiles, string path, string ext, bool scanDirOk)
+        private StringCollection cleanAllFiles(StringCollection allPhotos, StringCollection removedFiles, string path, string ext, bool scanDirOk, string removePath = "")
         {
-            var cleanPath = _fileSystem.Combine(path, ConstDef.ConstTempRemoveFolderName);
             string[] listFilesCurrDir = _fileSystem.GetFiles(path, ext);
-            
-            if(!_fileSystem.DirectoryExists(cleanPath))
-                _fileSystem.CreateDirectory(cleanPath);
-
-            foreach (string rowFile in listFilesCurrDir)
+            if (!path.Contains(ConstDef.ConstTempRemoveFolderName))
             {
-                var fileName = _fileSystem.GetFileName(rowFile);
-                var name = _fileSystem.GetFileNameWithoutExtension(rowFile);
-                
-                if (allPhotos.Contains(name) == false)
+                if (String.IsNullOrWhiteSpace(removePath))
                 {
-                    var newPath = _fileSystem.Combine(cleanPath, fileName);
-                    File.Move(rowFile, newPath);
-                    removedFiles.Add(rowFile);
+                    var cleanPath = _fileSystem.Combine(path, ConstDef.ConstTempRemoveFolderName);
+                    if (!_fileSystem.DirectoryExists(cleanPath))
+                        _fileSystem.CreateDirectory(cleanPath);
+                    removePath = cleanPath;
+                }
+
+                foreach (string rowFile in listFilesCurrDir)
+                {
+                    var fileName = _fileSystem.GetFileName(rowFile);
+                    var name = _fileSystem.GetFileNameWithoutExtension(rowFile);
+
+                    if (allPhotos.Contains(name) == false)
+                    {
+                        var newPath = _fileSystem.Combine(removePath, fileName);
+                        File.Move(rowFile, newPath);
+                        removedFiles.Add(rowFile);
+                    }
                 }
             }
-
             if (scanDirOk)
             {
                 string[] listDirCurrDir = _fileSystem.GetDirectories(path);
@@ -180,8 +185,7 @@ namespace foto_list
                 {
                     foreach (string rowDir in listDirCurrDir)
                     {
-                        if (!rowDir.Contains(ConstDef.ConstTempRemoveFolderName))
-                            cleanAllFiles(allPhotos, removedFiles, rowDir, ext, scanDirOk);
+                        cleanAllFiles(allPhotos, removedFiles, rowDir, ext, scanDirOk, removePath);
                     }
                 }
             }
@@ -195,7 +199,7 @@ namespace foto_list
             foreach (string rowFile in listFilesCurrDir)
             {
                 var name = _fileSystem.GetFileNameWithoutExtension(rowFile);
-                if (allFiles.Contains(name) == false)
+                if ((!name.StartsWith('.')) && allFiles.Contains(name) == false)
                 {
                     allFiles.Add(name);
                 }
@@ -213,8 +217,20 @@ namespace foto_list
                     }
                 }
             }
-            return allFiles;
+            return sortByName(allFiles);
+        }
+
+        private StringCollection sortByName(StringCollection orgCollection)
+        {
+            if (orgCollection == null || orgCollection.Count < 2)
+                return orgCollection;
+            String[] sortedArry = new string[orgCollection.Count];
+            orgCollection.CopyTo(sortedArry, 0);
+            Array.Sort(sortedArry);
+            orgCollection.Clear();
+            orgCollection.AddRange(sortedArry);
+            return orgCollection;
+
         }
     }
 }
-
