@@ -46,13 +46,13 @@ public class FotoManagerUtils
         return FotoManagerUtils.sortByName(allFiles);
     }
 
-    public static string checkFileName(IFileSystem fileSystem, string fullPathFile,string constFileName)
+    public static string checkFileName(IFileSystem fileSystem, string fullPathFile,string constFileName, string prefix)
     {
         if (string.IsNullOrEmpty(fullPathFile))
             return fullPathFile;
         if (!fileSystem.FileExists(fullPathFile))
             return fullPathFile;
-        var newFileNameFullPath = DateTime.Now.Second.ToString() + constFileName;
+        var newFileNameFullPath = prefix + constFileName;
         return fullPathFile.Replace(constFileName, newFileNameFullPath);
     }
 }

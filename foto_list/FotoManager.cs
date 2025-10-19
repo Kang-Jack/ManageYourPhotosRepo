@@ -25,7 +25,8 @@ namespace foto_list
 
             StringCollection allFiles = new StringCollection();
             FotoManagerUtils.listAllFiles(_fileSystem, allFiles, fullPath, "*.*", true);
-            listFileName = FotoManagerUtils.checkFileName(_fileSystem, listFileName, ConstDef.ConstlistFileName);
+            var prefix = fullPath.GetHashCode().ToString();
+            listFileName = FotoManagerUtils.checkFileName(_fileSystem, listFileName, ConstDef.ConstlistFileName, prefix);
             return WriteListFile(listFileName, allFiles);
         }
 
@@ -65,8 +66,9 @@ namespace foto_list
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             var baselineDiffFileName = _fileSystem.Combine(desktopPath, ConstDef.ConstBaselineDiffFileName);
             var targetDiffFileName = _fileSystem.Combine(desktopPath, ConstDef.ConstTargetDiffFileName);
-            baselineDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, baselineDiffFileName, ConstDef.ConstBaselineDiffFileName);
-            targetDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, targetDiffFileName, ConstDef.ConstTargetDiffFileName);
+            var prefix = DateTime.Now.Second.ToString();
+            baselineDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, baselineDiffFileName, ConstDef.ConstBaselineDiffFileName, prefix);
+            targetDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, targetDiffFileName, ConstDef.ConstTargetDiffFileName, prefix);
             var result = WriteListFile(baselineDiffFileName, allMissingFileInBaseline);
             result += "  " + WriteListFile(targetDiffFileName, allMissingFileInTarget);
 
@@ -91,7 +93,8 @@ namespace foto_list
 
             cleanAllFiles(allPhotos, removedFiles, fullPath, "*.*", true);
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var removedFileReport = FotoManagerUtils.checkFileName(_fileSystem, _fileSystem.Combine(desktopPath, ConstDef.ConstRemovedFileName), ConstDef.ConstRemovedFileName);
+            var prefix = fullPath.GetHashCode().ToString();
+            var removedFileReport = FotoManagerUtils.checkFileName(_fileSystem, _fileSystem.Combine(desktopPath, ConstDef.ConstRemovedFileName), ConstDef.ConstRemovedFileName,prefix);
             return WriteListFile(removedFileReport, removedFiles);
         }
 
