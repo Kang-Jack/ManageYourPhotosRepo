@@ -43,7 +43,7 @@ public class FotoManagerUtils
                 }
             }
         }
-        return FotoManagerUtils.sortByName(allFiles);
+        return sortByName(allFiles);
     }
 
     public static string checkFileName(IFileSystem fileSystem, string fullPathFile,string constFileName, string prefix)

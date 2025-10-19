@@ -25,7 +25,7 @@ namespace foto_list
 
             StringCollection allFiles = new StringCollection();
             FotoManagerUtils.listAllFiles(_fileSystem, allFiles, fullPath, "*.*", true);
-            var prefix = fullPath.GetHashCode().ToString();
+            var prefix = allFiles.Count.ToString();
             listFileName = FotoManagerUtils.checkFileName(_fileSystem, listFileName, ConstDef.ConstlistFileName, prefix);
             return WriteListFile(listFileName, allFiles);
         }
@@ -93,7 +93,7 @@ namespace foto_list
 
             cleanAllFiles(allPhotos, removedFiles, fullPath, "*.*", true);
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var prefix = fullPath.GetHashCode().ToString();
+            var prefix = removedFiles.Count.ToString();
             var removedFileReport = FotoManagerUtils.checkFileName(_fileSystem, _fileSystem.Combine(desktopPath, ConstDef.ConstRemovedFileName), ConstDef.ConstRemovedFileName,prefix);
             return WriteListFile(removedFileReport, removedFiles);
         }
@@ -174,10 +174,10 @@ namespace foto_list
                     var fileName = _fileSystem.GetFileName(rowFile);
                     var name = _fileSystem.GetFileNameWithoutExtension(rowFile);
 
-                    if (allPhotos.Contains(name) == false)
+                    if (allPhotos.Contains(name) == false && (!name.StartsWith('.')))
                     {
                         var newPath = _fileSystem.Combine(removePath, fileName);
-                        File.Move(rowFile, newPath);
+                        File.Move(rowFile, newPath,true);
                         removedFiles.Add(rowFile);
                     }
                 }
