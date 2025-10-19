@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Data;
 using System.IO;
 
 namespace foto_list
@@ -23,8 +24,8 @@ namespace foto_list
             Console.WriteLine(fullPath);
 
             StringCollection allFiles = new StringCollection();
-            listAllFiles(allFiles, fullPath, "*.*", true);
-
+            FotoManagerUtils.listAllFiles(_fileSystem, allFiles, fullPath, "*.*", true);
+            listFileName = FotoManagerUtils.checkFileName(_fileSystem, listFileName, ConstDef.ConstlistFileName);
             return WriteListFile(listFileName, allFiles);
         }
 
@@ -44,7 +45,7 @@ namespace foto_list
 
             StringCollection allFilesInTarget = new StringCollection();
 
-            listAllFiles(allFilesInTarget, fullPath, "*.*", true);
+            FotoManagerUtils.listAllFiles(_fileSystem, allFilesInTarget, fullPath, "*.*", true);
 
             StringCollection allMissingFileInTarget = new StringCollection();
             StringCollection allMissingFileInBaseline = new StringCollection();
@@ -64,7 +65,8 @@ namespace foto_list
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
             var baselineDiffFileName = _fileSystem.Combine(desktopPath, ConstDef.ConstBaselineDiffFileName);
             var targetDiffFileName = _fileSystem.Combine(desktopPath, ConstDef.ConstTargetDiffFileName);
-
+            baselineDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, baselineDiffFileName, ConstDef.ConstBaselineDiffFileName);
+            targetDiffFileName = FotoManagerUtils.checkFileName(_fileSystem, targetDiffFileName, ConstDef.ConstTargetDiffFileName);
             var result = WriteListFile(baselineDiffFileName, allMissingFileInBaseline);
             result += "  " + WriteListFile(targetDiffFileName, allMissingFileInTarget);
 
@@ -89,7 +91,7 @@ namespace foto_list
 
             cleanAllFiles(allPhotos, removedFiles, fullPath, "*.*", true);
             var desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            var removedFileReport = _fileSystem.Combine(desktopPath, ConstDef.ConstRemovedFileName);
+            var removedFileReport = FotoManagerUtils.checkFileName(_fileSystem, _fileSystem.Combine(desktopPath, ConstDef.ConstRemovedFileName), ConstDef.ConstRemovedFileName);
             return WriteListFile(removedFileReport, removedFiles);
         }
 
@@ -190,47 +192,6 @@ namespace foto_list
                 }
             }
             return removedFiles;
-        }
-
-        private StringCollection listAllFiles(StringCollection allFiles, string path, string ext, bool scanDirOk)
-        {
-            string[] listFilesCurrDir = _fileSystem.GetFiles(path, ext);
-
-            foreach (string rowFile in listFilesCurrDir)
-            {
-                var name = _fileSystem.GetFileNameWithoutExtension(rowFile);
-                if ((!name.StartsWith('.')) && allFiles.Contains(name) == false)
-                {
-                    allFiles.Add(name);
-                }
-            }
-
-            if (scanDirOk)
-            {
-                string[] listDirCurrDir = _fileSystem.GetDirectories(path);
-
-                if (listDirCurrDir.Length != 0)
-                {
-                    foreach (string rowDir in listDirCurrDir)
-                    {
-                        listAllFiles(allFiles, rowDir, ext, scanDirOk);
-                    }
-                }
-            }
-            return sortByName(allFiles);
-        }
-
-        private StringCollection sortByName(StringCollection orgCollection)
-        {
-            if (orgCollection == null || orgCollection.Count < 2)
-                return orgCollection;
-            String[] sortedArry = new string[orgCollection.Count];
-            orgCollection.CopyTo(sortedArry, 0);
-            Array.Sort(sortedArry);
-            orgCollection.Clear();
-            orgCollection.AddRange(sortedArry);
-            return orgCollection;
-
         }
     }
 }
